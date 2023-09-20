@@ -11,10 +11,10 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
-struct CustomRotarySlieder : juce::Slider
+struct CustomRotarySlider : juce::Slider
 {
-    CustomRotarySlieder() : juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
-                                         juce::Slider::TextEntryBoxPosition::NoTextBox)
+    CustomRotarySlider() : juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
+                                        juce::Slider::TextEntryBoxPosition::NoTextBox)
     {
         
     }
@@ -35,6 +35,7 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
+    
     void parameterValueChanged (int parameterIndex, float newValue) override;
 
     /** Indicates that a parameter change gesture has started.
@@ -50,15 +51,17 @@ public:
         to trigger an AsyncUpdater or ChangeBroadcaster which you can respond to later on the
         message thread.
     */
-    void parameterGestureChanged (int parameterIndex, bool gestureIsStarting) override{}
+    void parameterGestureChanged (int parameterIndex, bool gestureIsStarting) override { }
+    
     void timerCallback() override;
-
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     SimpleEQAudioProcessor& audioProcessor;
-    juce::Atomic<bool> parameterChanged {false};
-    CustomRotarySlieder peakFreqSlider,
+    
+    juce::Atomic<bool> parametersChanged { false };
+    
+    CustomRotarySlider peakFreqSlider,
     peakGainSlider,
     peakQualitySlider,
     lowCutFreqSlider,
@@ -66,20 +69,20 @@ private:
     lowCutSlopeSlider,
     highCutSlopeSlider;
     
-    std::vector<juce::Component*> getComps();
-    
     using APVTS = juce::AudioProcessorValueTreeState;
     using Attachment = APVTS::SliderAttachment;
     
     Attachment peakFreqSliderAttachment,
-            peakGainSliderAttachment,
-            peakQualitySliderAttachment,
-            lowCutFreqSliderAttachment,
-            highCutFreqSliderAttachment,
-            lowCutSlopeSliderAttachment,
-            highCutSlopeSliderAttachment;
+                peakGainSliderAttachment,
+                peakQualitySliderAttachment,
+                lowCutFreqSliderAttachment,
+                highCutFreqSliderAttachment,
+                lowCutSlopeSliderAttachment,
+                highCutSlopeSliderAttachment;
+    
+    std::vector<juce::Component*> getComps();
+    
     MonoChain monoChain;
 
-    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessorEditor)
 };
