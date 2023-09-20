@@ -102,7 +102,7 @@ void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
     g.setColour(Colours::orange);
     g.drawRoundedRectangle(responseArea.toFloat(), 4.f, 1.f);
     
-    g.setColour(Colours::white);
+    g.setColour(Colours::red);
     g.strokePath(responseCurve, PathStrokeType(2.f));
     
 }
@@ -128,6 +128,22 @@ void SimpleEQAudioProcessorEditor::resized()
     peakGainSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.5));
     peakQualitySlider.setBounds(bounds);
 }
+
+
+void SimpleEQAudioProcessorEditor::parameterValueChanged(int parameterIndex, float newValue)
+{
+    parameterChanged.set(true);
+}
+
+void SimpleEQAudioProcessorEditor::timerCallback()
+{
+    if( parameterChanged.compareAndSetBool(false, true) )
+    {
+        //update the monochain
+        //signal a repaint
+    }
+}
+
 std::vector<juce::Component*> SimpleEQAudioProcessorEditor::getComps(){
     return {
         &peakFreqSlider,
