@@ -80,9 +80,9 @@ void RotarySliderWithLabels::paint(juce::Graphics &g)
     
     auto sliderBounds = getSliderBounds();
     
-    g.setColour(Colours::red);
-    g.drawRect(sliderBounds);
-    
+//    g.setColour(Colours::red);
+//    g.drawRect(sliderBounds);
+//    
     getLookAndFeel().drawRotarySlider(g,
                                       sliderBounds.getX(),
                                       sliderBounds.getY(),
@@ -113,7 +113,34 @@ juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
 
 juce::String RotarySliderWithLabels::getDisplayString() const
 {
-    return juce::String(getValue());
+    juce::String str;
+
+    if(auto* choiceParam = dynamic_cast<juce::AudioParameterChoice*>(param)){
+        return choiceParam->getCurrentChoiceName();
+    }
+    
+    bool addK = false;
+    if(auto* choiceParameter = dynamic_cast<juce::AudioParameterFloat*>(param))
+    {
+        float value = getValue();
+        if( value > 999.f){
+            value /= 1000.f;
+            addK = true;
+        }
+        str = juce::String(value, (addK ? 2 : 0));
+    }else{
+        jassertfalse; // this should not happen
+    }
+    
+    if( suffix.isNotEmpty()){
+        str<<" ";
+        if (addK) {
+            str << "k";
+        }
+        str << suffix;
+    }
+    
+    return str;
 }
 
 ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) : audioProcessor(p)
