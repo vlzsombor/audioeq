@@ -13,35 +13,34 @@
 
 struct LookAndFeel : juce::LookAndFeel_V4
 {
-    void drawRotarySlider (juce::Graphics&, int x, int y, int width, int height,
-                           float sliderPosProportional, float rotaryStartAngle,
-                           float rotaryEndAngle, juce::Slider&) override
-    {
-        
-    }
+    void drawRotarySlider (juce::Graphics&,
+                           int x, int y, int width, int height,
+                           float sliderPosProportional,
+                           float rotaryStartAngle,
+                           float rotaryEndAngle,
+                           juce::Slider&) override;
 };
 
-struct RotartySliderWithLabels : juce::Slider
+struct RotarySliderWithLabels : juce::Slider
 {
-    RotartySliderWithLabels(juce::RangedAudioParameter& rap, const juce::String& unitSuffix) :
-                juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
-                             juce::Slider::TextEntryBoxPosition::NoTextBox),
-        param(&rap),
-        suffix(unitSuffix)
+    RotarySliderWithLabels(juce::RangedAudioParameter& rap, const juce::String& unitSuffix) :
+    juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
+                 juce::Slider::TextEntryBoxPosition::NoTextBox),
+    param(&rap),
+    suffix(unitSuffix)
     {
         setLookAndFeel(&lnf);
     }
-    ~RotartySliderWithLabels()
+    
+    ~RotarySliderWithLabels()
     {
         setLookAndFeel(nullptr);
     }
     
-    void paint(juce::Graphics& g) override{}
+    void paint(juce::Graphics& g) override;
     juce::Rectangle<int> getSliderBounds() const;
-    int getTextHeight() const {return 14;}
+    int getTextHeight() const { return 14; }
     juce::String getDisplayString() const;
-
-
 private:
     LookAndFeel lnf;
     
@@ -89,7 +88,7 @@ private:
     SimpleEQAudioProcessor& audioProcessor;
 
     
-    RotartySliderWithLabels peakFreqSlider,
+    RotarySliderWithLabels peakFreqSlider,
     peakGainSlider,
     peakQualitySlider,
     lowCutFreqSlider,
