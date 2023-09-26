@@ -64,12 +64,6 @@ void LookAndFeel::drawRotarySlider(juce::Graphics & g,
         g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
     }
     
-    
-    
-    
-    
-    
-    
 }
 //==============================================================================
 void RotarySliderWithLabels::paint(juce::Graphics &g)
@@ -186,7 +180,8 @@ ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) : audi
     {
         param->addListener(this);
     }
-    
+    updateChain();
+
     startTimerHz(60);
 }
 
@@ -210,18 +205,22 @@ void ResponseCurveComponent::timerCallback()
     {
         DBG( "params changed" );
         //update the monochain
-        auto chainSettings = getChainSettings(audioProcessor.apvts);
-        auto peakCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate());
-        updateCoefficients(monoChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
-        
-        auto lowCutCoefficients = makeLowCutFilter(chainSettings, audioProcessor.getSampleRate());
-        auto highCutCoefficients = makeHighCutFilter(chainSettings, audioProcessor.getSampleRate());
-        
-        updateCutFilter(monoChain.get<ChainPositions::LowCut>(), lowCutCoefficients, chainSettings.lowCutSlope);
-        updateCutFilter(monoChain.get<ChainPositions::HighCut>(), highCutCoefficients, chainSettings.highCutSlope);
-        //signal a repaint
+        updateChain();
         repaint();
     }
+}
+
+void ResponseCurveComponent::updateChain(){
+    auto chainSettings = getChainSettings(audioProcessor.apvts);
+    auto peakCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate());
+    updateCoefficients(monoChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
+    
+    auto lowCutCoefficients = makeLowCutFilter(chainSettings, audioProcessor.getSampleRate());
+    auto highCutCoefficients = makeHighCutFilter(chainSettings, audioProcessor.getSampleRate());
+    
+    updateCutFilter(monoChain.get<ChainPositions::LowCut>(), lowCutCoefficients, chainSettings.lowCutSlope);
+    updateCutFilter(monoChain.get<ChainPositions::HighCut>(), highCutCoefficients, chainSettings.highCutSlope);
+    //signal a repaint
 }
 
 void ResponseCurveComponent::paint (juce::Graphics& g)
@@ -349,9 +348,12 @@ void SimpleEQAudioProcessorEditor::resized()
     // subcomponents in your editor..
     
     auto bounds = getLocalBounds();
-    auto responseArea = bounds.removeFromTop(bounds.getHeight() * 0.33);
+    float hRatio = 33/ 100.f;
+    auto responseArea = bounds.removeFromTop(bounds.getHeight() * hRatio);
     
     responseCurveComponent.setBounds(responseArea);
+    
+    bounds.removeFromTop(5);
     
     auto lowCutArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
     auto highCutArea = bounds.removeFromRight(bounds.getWidth() * 0.5);

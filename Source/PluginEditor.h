@@ -73,7 +73,8 @@ juce::Timer
 private:
     SimpleEQAudioProcessor& audioProcessor;
     juce::Atomic<bool> parametersChanged { false };
-    
+    void updateChain();
+
     MonoChain monoChain;
 };
 
