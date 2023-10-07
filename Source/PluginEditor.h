@@ -70,12 +70,17 @@ juce::Timer
     void timerCallback() override;
     
     void paint(juce::Graphics& g) override;
+    void resized() override;
 private:
     SimpleEQAudioProcessor& audioProcessor;
     juce::Atomic<bool> parametersChanged { false };
     void updateChain();
+    juce::Image background;
 
     MonoChain monoChain;
+    juce::Rectangle<int> getRenderArea();
+    juce::Rectangle<int> getAnalysisArea();
+
 };
 
 //==============================================================================
