@@ -10,20 +10,6 @@
 
 #include <JuceHeader.h>
 
-enum Slope
-{
-    Slope_12,
-    Slope_24,
-    Slope_36,
-    Slope_48
-};
-
-enum Channel{
-    right, ///1
-    left ///0
-};
-
-
 #include <array>
 template<typename T>
 struct Fifo
@@ -87,6 +73,13 @@ private:
     std::array<T, Capacity> buffers;
     juce::AbstractFifo fifo {Capacity};
 };
+
+enum Channel
+{
+    Right, //effectively 0
+    Left //effectively 1
+};
+
 template<typename BlockType>
 struct SingleChannelSampleFifo
 {
@@ -151,8 +144,13 @@ private:
     }
 };
 
-
-
+enum Slope
+{
+    Slope_12,
+    Slope_24,
+    Slope_36,
+    Slope_48
+};
 
 struct ChainSettings
 {
@@ -280,10 +278,8 @@ public:
     juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameterLayout()};
     
     using BlockType = juce::AudioBuffer<float>;
-    
-    SingleChannelSampleFifo<BlockType> leftChannelFifo { Channel::left };
-    SingleChannelSampleFifo<BlockType> rightChannelFifo { Channel::left };
-    
+    SingleChannelSampleFifo<BlockType> leftChannelFifo { Channel::Left };
+    SingleChannelSampleFifo<BlockType> rightChannelFifo { Channel::Right };
 private:
     MonoChain leftChain, rightChain;
     
@@ -291,17 +287,13 @@ private:
 
     
     
+    
     void updateLowCutFilters(const ChainSettings& chainSettings);
     void updateHighCutFilters(const ChainSettings& chainSettings);
     
-    
-    
-    
     void updateFilters();
     
-    
     juce::dsp::Oscillator<float> osc;
-    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
 };
