@@ -162,11 +162,10 @@ struct LookAndFeel : juce::LookAndFeel_V4
                            float rotaryEndAngle,
                            juce::Slider&) override;
     
-    void drawToggleButton(juce::Graphics &,
-                          juce::ToggleButton &,
-                          bool shouldDrawButtonAsHighlighted,
-                          bool shouldDrawButtonAsDown) override;
-
+    void drawToggleButton (juce::Graphics &g,
+                           juce::ToggleButton & toggleButton,
+                           bool shouldDrawButtonAsHighlighted,
+                           bool shouldDrawButtonAsDown) override;
 };
 
 struct RotarySliderWithLabels : juce::Slider
@@ -241,6 +240,11 @@ juce::Timer
     
     void paint(juce::Graphics& g) override;
     void resized() override;
+    void toggleEnabled(bool enabled);
+    void toggleAnalysisEnablement(bool enabled){
+        shouldShowFftAnalysis = enabled;
+    }
+    
 private:
     SimpleEQAudioProcessor& audioProcessor;
     juce::Atomic<bool> parametersChanged { false };
@@ -256,12 +260,35 @@ private:
     juce::Rectangle<int> getAnalysisArea();
     
     PathProducer leftPathProducer, rightPathProducer;
+    
+    bool shouldShowFftAnalysis = true;
 };
 
-struct PowerButton : juce::ToggleButton {};
-struct AnalyzerButton : juce::ToggleButton{};
-
 //==============================================================================
+struct PowerButton : juce::ToggleButton { };
+struct AnalyzerButton : juce::ToggleButton
+{
+    void resized() override
+    {
+        auto bounds = getLocalBounds();
+        auto insetRect = bounds.reduced(4);
+        
+        randomPath.clear();
+        
+        juce::Random r;
+        
+        randomPath.startNewSubPath(insetRect.getX(),
+                                   insetRect.getY() + insetRect.getHeight() * r.nextFloat());
+        
+        for( auto x = insetRect.getX() + 1; x < insetRect.getRight(); x += 2 )
+        {
+            randomPath.lineTo(x,
+                              insetRect.getY() + insetRect.getHeight() * r.nextFloat());
+        }
+    }
+    
+    juce::Path randomPath;
+};
 /**
 */
 class SimpleEQAudioProcessorEditor  : public juce::AudioProcessorEditor
@@ -303,14 +330,16 @@ private:
     
     PowerButton lowcutBypassButton, peakBypassButton, highcutBypassButton;
     AnalyzerButton analyzerEnabledButton;
-    std::vector<juce::Component*> getComps();
-
-    using ButtonAttachment = APVTS::ButtonAttachment;
     
+    using ButtonAttachment = APVTS::ButtonAttachment;
     ButtonAttachment lowcutBypassButtonAttachment,
                      peakBypassButtonAttachment,
                      highcutBypassButtonAttachment,
                      analyzerEnabledButtonAttachment;
+    
+    std::vector<juce::Component*> getComps();
+    
     LookAndFeel lnf;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessorEditor)
 };
